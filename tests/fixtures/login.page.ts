@@ -22,9 +22,7 @@ class LoginPage {
     async completeLogin(email:string, password:string){
         await this.page.goto(`${process.env.BASE_URL}/customer/account/login/`);
 
-        await this.email.fill(email);
-        await this.password.fill(password);
-        await this.loginButton.click();
+        await this.login(email,password);
 
         await this.page.waitForLoadState('networkidle');
         

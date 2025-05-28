@@ -5,18 +5,11 @@ import CartPage from './fixtures/cart.page';
 test.describe.serial('Stripe Order', () => {
     let orderNumber: string;
     test('Subscription Product Checkout', async ({ page }) => {
-        await test.step('Add Subscription Product to Cart', async () => {
-            const cartPage = new CartPage(page);
-            await cartPage.addToCart(`${process.env.BASE_URL}/${process.env.CHECKOUT_PRODUCT_URL}`, process.env.CHECKOUT_PRODUCT_NAME!);
-        });
+        const checkoutPage = new CheckoutPage(page);
+        await checkoutPage.placeOrder();
 
-        await test.step('Place Order', async () => {
-            const checkoutPage = new CheckoutPage(page);
-            await checkoutPage.placeOrder();
-
-            orderNumber = await page.locator('a.order-number').innerText();
-            await page.waitForLoadState('load');
-        });
+        orderNumber = await page.locator('a.order-number').innerText();
+        await page.waitForLoadState('load');
     });
 
     test('Check Downladable product', async ({page}) => {

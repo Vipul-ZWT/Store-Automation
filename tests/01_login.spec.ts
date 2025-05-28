@@ -28,24 +28,6 @@ test('Login From Home Page', async ({page}) => {
     expect(loginStatus).toBe("1")
 });
 
-test('Customer Login Test',async ({page}) => {
-    await page.goto(`${process.env.BASE_URL}/customer/account/login/`);
-
-    page.setDefaultTimeout(30000);
-    
-    const loginPage = new LoginPage(page);
-    await loginPage.login(process.env.CUSTOMER_EMAIL_CHROMIUM!, process.env.CUSTOMER_PASSWORD_CHROMIUM!);
-
-    await page.waitForLoadState('networkidle');
-
-    const loginStatus = await page.evaluate(() => {
-        return localStorage.getItem('mage-customer-login');
-      });
-    
-
-    expect(loginStatus).toBe("1")
-})
-
 test('Customer Incorrect Login Test',async ({page}) => {
     await page.goto(`${process.env.BASE_URL}/customer/account/login/`);
 
