@@ -3,3 +3,6 @@
 .env.example
 .env.local
 .env.staging
+playwright/.auth/
+playwright-report/
+test-results/

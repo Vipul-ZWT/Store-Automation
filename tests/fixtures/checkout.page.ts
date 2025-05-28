@@ -16,6 +16,7 @@ class CheckoutPage {
     readonly zipCodeField: Locator;
     readonly updateAddressButton: Locator;
     readonly stirpePaymentSection: Locator;
+    readonly cancelSubscriptionButton: Locator;
 
     constructor(page: Page) {
         this.page = page;
@@ -32,6 +33,7 @@ class CheckoutPage {
         this.countryField = page.locator(".billing-address-form select[name='country_id']");
         this.stateField = page.locator(".billing-address-form select[name='region_id']");
         this.updateAddressButton = page.getByRole('button', { name: 'Update' });
+        this.cancelSubscriptionButton = page.locator('.table-order-items tbody tr:first-child .delete');
     }
 
     async waitForStripeIframeReload() {
@@ -73,7 +75,6 @@ class CheckoutPage {
 
     async placeOrder() {
         await this.page.goto(`${process.env.BASE_URL}/checkout/#payment`);
-        // await this.page.waitForLoadState('domcontentloaded');
         await expect(this.grandTotal).toBeVisible({timeout: 60000});
 
         await this.fillBillingAddressIfVisible();
@@ -86,10 +87,19 @@ class CheckoutPage {
 
             await this.placeOrderButton.scrollIntoViewIfNeeded();
             await this.placeOrderButton.click();
-    
+
             const orderSuccessMessage = this.page.locator('text=Thank you for your purchase!');
             await expect(orderSuccessMessage).toBeVisible({timeout: 60000});
         }
+    }
+
+    async cancelSubscription() {
+        await this.cancelSubscriptionButton.scrollIntoViewIfNeeded();
+        await this.page.once('dialog', async dialog => {await dialog.accept();});
+        
+        await this.cancelSubscriptionButton.click();
+        
+        await expect(this.cancelSubscriptionButton).toBeHidden();
     }
 }
 
