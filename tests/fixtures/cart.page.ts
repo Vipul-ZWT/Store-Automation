@@ -1,4 +1,5 @@
 import { Locator, Page, expect } from "@playwright/test";
+import { profileEnd } from "console";
 
 class CartPage {
     readonly page: Page;
@@ -29,9 +30,13 @@ class CartPage {
 
     async addToCart(url: string,productName: string) {
         await this.page.goto(url);
-        await expect(this.policyButton).toBeVisible();
-        await this.policyButton.scrollIntoViewIfNeeded();
-        await this.policyButton.check();
+        const productTitle = await this.page.locator('h1.page-title .base');
+        await expect(productTitle).toHaveText(productName);
+
+        if(await this.policyButton.isVisible()){
+            await this.policyButton.scrollIntoViewIfNeeded();
+            await this.policyButton.check();
+        }
 
         await this.addToCartButton.scrollIntoViewIfNeeded();
         await this.addToCartButton.click();
