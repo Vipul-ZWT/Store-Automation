@@ -18,7 +18,14 @@ test.describe.serial('Stripe Order', () => {
             await page.waitForLoadState('load');
         });
     });
-    
+
+    test('Check Downladable product', async ({page}) => {
+        await page.goto(`${process.env.BASE_URL}/downloadable/customer/products/`);
+        const rowLocator = page.locator('.table-downloadable-products tbody tr').filter({hasText: 'Test Subscription Product'});
+        
+        await expect(rowLocator).toBeVisible();
+    })
+
     test('Stripe Subscription Verification and Cancellation', async ({page}) => {
         test.setTimeout(180000);
         const checkoutPage = new CheckoutPage(page);
