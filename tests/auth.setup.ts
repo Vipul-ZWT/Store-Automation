@@ -14,5 +14,3 @@ setup('Customer Authentication', async ({ page,browserName }) => {
 
   await page.context().storageState({ path: authFile });
 });
-
-//test branch
