@@ -7,3 +7,5 @@ playwright/.auth/
 playwright-report/
 test-results/
 package-lock.json
+credentials.json
+token.json

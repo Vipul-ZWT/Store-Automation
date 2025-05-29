@@ -1,6 +1,7 @@
 import { test,expect,Locator } from "@playwright/test";
 import LoginPage from "./fixtures/login.page";
 import AccountPage from "./fixtures/account.page";
+import Email from "./fixtures/email.check";
 
 test.use({ storageState: { cookies: [], origins: [] } });
 
@@ -53,7 +54,12 @@ test('Customer forgot password flow', async ({page}) => {
     await page.fill('input#email_address', process.env.CUSTOMER_EMAIL_CHROMIUM!);
   
     await page.waitForLoadState('networkidle');
-    await resetButton.click();  
+    await resetButton.click();
+
+    const email = new Email();
+    await email.checkEmail('Reset your ZealousWeb password')
+    
+    expect(email).toBeTruthy();
 
     const successMessage:Locator = page.locator('div.message-success');
     await expect(successMessage).toBeVisible();
@@ -67,6 +73,9 @@ test('Update Password',async ({page,browserName}) => {
 
     const accountPage = new AccountPage(page);
     await accountPage.updatePassword(process.env.OTHER_CUSTOMER_PASSWORD!, process.env.OTHER_CUSTOMER_NEW_PASSWORD!);
+
+    const email = new Email();
+    await email.checkEmail('Your ZealousWeb password has been changed');
     
     await loginPage.completeLogin(process.env.OTHER_CUSTOMER_EMAIL!, process.env.OTHER_CUSTOMER_NEW_PASSWORD!);
 })
