@@ -15,8 +15,10 @@ class Email {
                 label: 'SENT'
             }
         );
+
+        console.log(email);
         
-        await expect(email).toBeTruthy();
+        expect(email).toBeTruthy();
     }
     
 }

@@ -24,10 +24,10 @@ export default defineConfig({
   workers: 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   // reporter: [
-  //   ['list'],
+  //   ['line'],
   //   ['json', {  outputFile: 'test-results.json' }]
   // ],
-  reporter: 'html',
+  reporter: [['./tests/pdfReporter.js']],
   timeout: 60000,
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
@@ -41,13 +41,14 @@ export default defineConfig({
 
   /* Configure projects for major browsers */
   projects: [
-    {
-      name: 'setup-chromium',
-      testMatch: /.*\.setup\.ts/,
-      use: {
-        ...devices['Desktop Chrome'],
-      },
-    },
+    // {
+    //   name: 'setup-chromium',
+    //   testMatch: /.*\.setup\.ts/,
+    //   use: {
+    //     ...devices['Desktop Chrome'],
+    //     browserName: 'chromium',
+    //   },
+    // },
     {
       name: 'setup-firefox',
       testMatch: /.*\.setup\.ts/,
@@ -60,8 +61,10 @@ export default defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         storageState: 'playwright/.auth/user.chromium.json',
+        browserName: 'chromium',
       },
-      dependencies: ['setup-chromium'],
+      // dependencies: ['setup-chromium'],
+      
     },
     {
       name: 'firefox',
