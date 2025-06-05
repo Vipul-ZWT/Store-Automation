@@ -17,6 +17,7 @@ class CheckoutPage {
     readonly updateAddressButton: Locator;
     readonly stirpePaymentSection: Locator;
     readonly cancelSubscriptionButton: Locator;
+    readonly payWithRazorPayButton: Locator;
 
     constructor(page: Page) {
         this.page = page;
@@ -24,6 +25,7 @@ class CheckoutPage {
         this.stirpePaymentSection = page.locator('[data-bind*="visible: isPaymentFormVisible"]');
         this.grandTotal = page.locator("tr.grand.totals .price");
         this.placeOrderButton = page.locator("button[title='Place Order']");
+        this.payWithRazorPayButton = page.locator("button[title='Pay with Razorpay']");
         this.firstNameField = page.getByRole('textbox', { name: /first name/i });
         this.lastNameField = page.getByRole('textbox', { name: /last name/i });
         this.phoneNumberField = page.getByRole('textbox', { name: /phone number/i });
@@ -51,16 +53,24 @@ class CheckoutPage {
         await frame.getByRole('textbox', { name: 'Security code' }).fill(process.env.CARD_CVV!);
     }
 
-    async fillBillingAddressIfVisible() {
+    async fillBillingAddressIfVisible(razorpay: Boolean = false) {
         if (await this.billingAddressSection.isVisible()) {
             await this.firstNameField.fill(process.env.CUSTOMER_FIRST_NAME!);
             await this.lastNameField.fill(process.env.CUSTOMER_LAST_NAME!);
             await this.phoneNumberField.fill(process.env.CUSTOMER_PHONE!);
             await this.streetAddressField.fill(process.env.CUSTOMER_ADDRESS!);
-            await this.countryField.selectOption({ label: process.env.CUSTOMER_COUNTRY! });
-            await this.cityField.fill(process.env.CUSTOMER_CITY!);
-            await this.stateField.selectOption({ label: process.env.CUSTOMER_STATE! });
-            await this.zipCodeField.fill(process.env.CUSTOMER_POSTAL_CODE!);
+            if(razorpay){
+                await this.countryField.selectOption({ label: "India" });
+                await this.stateField.selectOption({ label: "Gujarat"});
+                await this.cityField.fill("Ahmedabad");
+                await this.zipCodeField.fill("388120");
+            }
+            else{
+                await this.countryField.selectOption({ label: process.env.CUSTOMER_COUNTRY! });
+                await this.cityField.fill(process.env.CUSTOMER_CITY!);
+                await this.stateField.selectOption({ label: process.env.CUSTOMER_STATE! });
+                await this.zipCodeField.fill(process.env.CUSTOMER_POSTAL_CODE!);
+            }
         }
 
         if(await this.updateAddressButton.isVisible()) {
@@ -100,6 +110,43 @@ class CheckoutPage {
         await this.cancelSubscriptionButton.click();
         
         await expect(this.cancelSubscriptionButton).toBeHidden();
+    }
+
+    async placeOrderRazorpay(){
+        await this.page.goto(`${process.env.BASE_URL}/checkout/#payment`);
+        await expect(this.grandTotal).toBeVisible({timeout: 60000});
+
+        await this.fillBillingAddressIfVisible(true);
+
+        await this.payWithRazorPayButton.scrollIntoViewIfNeeded();
+        await this.payWithRazorPayButton.click();
+
+        const razorpayFrame = this.page.locator('iframe').first().contentFrame();
+
+        await razorpayFrame.getByRole('textbox', { name: 'Mobile number' }).fill('9725406871');
+
+        await razorpayFrame.getByTestId('nav-sidebar').locator('div').filter({ hasText: 'Cards' }).nth(2).click();
+
+        await razorpayFrame.getByPlaceholder('Card Number').fill('4111 1111 1111 1111');
+        await razorpayFrame.getByPlaceholder('MM / YY').fill('11 / 29');
+        await razorpayFrame.getByPlaceholder('CVV').fill('123');
+
+        await razorpayFrame.locator('[data-test-id="add-card-cta"]').scrollIntoViewIfNeeded();
+        await razorpayFrame.locator('[data-test-id="add-card-cta"]').click();
+
+        await razorpayFrame.getByText('INR ₹').click();
+        await razorpayFrame.getByRole('button', { name: 'Pay ₹' }).click();
+
+        const page1Promise = this.page.waitForEvent('popup');
+        await razorpayFrame.getByRole('button', { name: 'Maybe later' }).click();
+
+        const page1 = await page1Promise;
+
+        await razorpayFrame.getByPlaceholder('Enter OTP').fill('1234');
+        await razorpayFrame.getByTestId('overlay-[object Object]').getByRole('button', { name: 'Continue' }).click();
+
+        const orderSuccessMessage = this.page.locator('text=Thank you for your purchase!');
+        await expect(orderSuccessMessage).toBeVisible({timeout: 80000});
     }
 }
 
