@@ -12,6 +12,10 @@ class AffiliatePage {
     readonly applyFilterButton;
     readonly orderInvoiceButton;
     readonly submitInvoiceButton;
+    readonly withdrawAmount;
+    readonly withdrawEmail;
+    readonly withdrawRequestButton;
+    readonly cancelWithdrawButton;
 
     constructor(page: Page){
         this.page = page;
@@ -24,6 +28,10 @@ class AffiliatePage {
         this.applyFilterButton = page.getByRole('button', { name: 'Apply Filters' });
         this.orderInvoiceButton = page.locator("#order_invoice");
         this.submitInvoiceButton = page.locator('button[data-ui-id="order-items-submit-button"]');
+        this.withdrawAmount = page.locator("#withdraw_amount");
+        this.withdrawEmail = page.locator("#paypal_email");
+        this.withdrawRequestButton = page.getByRole('button',{name: "Send Request"});
+        this.cancelWithdrawButton = page.locator("#affiliate-withdraws-history tbody tr").first().locator('a',{hasText: 'Cancel'});
     }
 
     async storeSwitch(){
@@ -55,6 +63,33 @@ class AffiliatePage {
 
         const successMessage = this.page.locator('.message-success');
         await expect(successMessage).toContainText('The invoice has been created.');
+    }
+
+    async myWithdrawal(){
+        await this.withdrawAmount.fill("10");
+        await this.withdrawEmail.fill("magento.qa.testing@gmail.com");
+        await this.withdrawRequestButton.scrollIntoViewIfNeeded();
+        await this.withdrawRequestButton.click();
+
+        await this.page.waitForLoadState('load');
+        const rowLocator = this.page.locator("#affiliate-withdraws-history tbody tr").first().filter({
+            hasText: 'Pending'
+        });
+
+        await expect(rowLocator).toBeVisible();
+    }
+
+    async cancelWithdrawal(){
+        await this.cancelWithdrawButton.scrollIntoViewIfNeeded();
+        await this.page.once('dialog', async(dialog) => {await dialog.accept()})
+        await this.cancelWithdrawButton.click();
+
+        await this.page.waitForLoadState('load');
+        const rowLocator = this.page.locator("#affiliate-withdraws-history tbody tr").first().filter({
+            hasText: 'Cancel'
+        });
+
+        await expect(rowLocator).toBeVisible();
     }
 }
 

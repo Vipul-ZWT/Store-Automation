@@ -1,6 +1,8 @@
 import { test,expect,Locator } from "@playwright/test";
 import LoginPage from "./fixtures/login.page";
 import Email from "./fixtures/email.check";
+import gmail from "gmail-tester";
+import path from "path";
 
 test.use({ storageState: { cookies: [], origins: [] } });
 
@@ -44,5 +46,5 @@ test('Customer Incorrect Login Test',async ({page}) => {
 
 test('Email check',async ({page}) => {
     const email = new Email();
-    email.checkEmail('Your ZealousWeb password has been changed');
+    email.checkEmail('Your ZealousWeb order confirmation for #4000000150');
 })

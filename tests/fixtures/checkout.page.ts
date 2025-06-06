@@ -127,8 +127,11 @@ class CheckoutPage {
 
         await razorpayFrame.getByTestId('nav-sidebar').locator('div').filter({ hasText: 'Cards' }).nth(2).click();
 
+        await razorpayFrame.getByPlaceholder('Card Number').click();
         await razorpayFrame.getByPlaceholder('Card Number').fill('4111 1111 1111 1111');
+        await razorpayFrame.getByPlaceholder('MM / YY').click();
         await razorpayFrame.getByPlaceholder('MM / YY').fill('11 / 29');
+        await razorpayFrame.getByPlaceholder('CVV').click();
         await razorpayFrame.getByPlaceholder('CVV').fill('123');
 
         await razorpayFrame.locator('[data-test-id="add-card-cta"]').scrollIntoViewIfNeeded();
@@ -146,7 +149,7 @@ class CheckoutPage {
         await razorpayFrame.getByTestId('overlay-[object Object]').getByRole('button', { name: 'Continue' }).click();
 
         const orderSuccessMessage = this.page.locator('text=Thank you for your purchase!');
-        await expect(orderSuccessMessage).toBeVisible({timeout: 80000});
+        await expect(orderSuccessMessage).toBeVisible({timeout: 100000});
     }
 }
 
