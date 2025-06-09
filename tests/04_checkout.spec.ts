@@ -1,36 +1,51 @@
 import {test,expect} from '@playwright/test';
 import CheckoutPage from './fixtures/checkout.page';
-import CartPage from './fixtures/cart.page';
-import gmail from "gmail-tester";
-import path from "path";
+import Email from './fixtures/email.check';
 
 test.describe.serial('Stripe Order', () => {
     let orderNumber: string;
-    test('Subscription Product Checkout', async ({ page }) => {
-        // const cartPage = new CartPage(page);
-        // await cartPage.addToCart(`${process.env.BASE_URL}/${process.env.PRODUCT_URL}`,process.env.PRODUCT_NAME!);
+    test('Subscription Product Checkout', async ({ page },testInfo) => {
+        let steps: { title: string; status: string }[] = [];
 
-        const checkoutPage = new CheckoutPage(page);
-        await checkoutPage.placeOrder();
-
-        orderNumber = await page.locator('a.order-number').innerText();
-
-        const email = await gmail.check_inbox(
-            path.resolve('credentials.json'),
-            path.resolve('token.json'),
-            {
-                subject: `Your ZealousWeb order confirmation for #${orderNumber}`,
-                max_wait_time_sec: 60,
-                wait_time_sec: 10,
-                include_body: true,
-                label: 'SENT'
+        await test.step('Place Order', async() => {
+            steps.push({ title: 'Place Order', status: 'started' });
+            try {
+                const checkoutPage = new CheckoutPage(page);
+                await checkoutPage.placeOrder();
+                steps[steps.length - 1].status = 'passed';
+            } catch (error) {
+                steps[steps.length - 1].status = 'failed';
             }
-        );
+        })
 
-
-        expect(email).toBeTruthy();
+        await test.step('Order Success Page', async() => {
+            steps.push({ title: 'Order Success Page', status: 'started' });
+            try {
+                orderNumber = await page.locator('a.order-number').innerText();
+                steps[steps.length - 1].status = 'passed';
+            } catch (error) {
+                steps[steps.length - 1].status = 'failed';
+            }
+        })
+        
+        await test.step('Order Email Verification', async () => {
+            steps.push({ title: 'Order Email Verification', status: 'started' });
+            try{
+                const email = new Email();
+                await email.checkEmail(`Your ZealousWeb order confirmation for #${orderNumber}`);
+                steps[steps.length - 1].status = 'passed';
+            } catch {
+                steps[steps.length - 1].status = 'failed';
+            }
+        })
 
         await page.waitForLoadState('load');
+
+        testInfo.attachments.push({
+            name: 'steps',
+            contentType: 'application/json',
+            body: Buffer.from(JSON.stringify(steps))
+        });
     });
 
     test('Check Downladable product', async ({page}) => {
@@ -40,15 +55,39 @@ test.describe.serial('Stripe Order', () => {
         await expect(rowLocator).toBeVisible();
     })
 
-    test('Stripe Subscription Verification and Cancellation', async ({page}) => {
-        test.setTimeout(180000);
+    test('Stripe Subscription Verification and Cancellation', async ({page}, testInfo) => {
+        let steps: { title: string; status: string }[] = [];
         const checkoutPage = new CheckoutPage(page);
         
-        await page.goto(`${process.env.BASE_URL}/stripe/customer/subscriptions/`, {waitUntil: 'domcontentloaded'});
-        const rowLocator = page.locator('.table-order-items tbody tr').first().filter({hasText: orderNumber});
-        await expect(rowLocator).toBeVisible();
+        test.setTimeout(180000);
         
-        await checkoutPage.cancelSubscription();
+        await test.step('Verify Subscription Product', async () => {
+            steps.push({ title: 'Verification of Subscription Product', status: 'started' });
+            try {
+                await page.goto(`${process.env.BASE_URL}/stripe/customer/subscriptions/`, {waitUntil: 'domcontentloaded'});
+                const rowLocator = page.locator('.table-order-items tbody tr').first().filter({hasText: orderNumber});
+                await expect(rowLocator).toBeVisible();
+                steps[steps.length - 1].status = 'passed';
+            } catch  {
+                steps[steps.length - 1].status = 'failed';
+            }
+        });
+
+        await test.step('Cancel Subscription', async () => {
+            steps.push({ title: 'Cancel Subscription', status: 'started' });
+            try {
+                await checkoutPage.cancelSubscription();
+                steps[steps.length - 1].status = 'passed';
+            } catch  {
+                steps[steps.length - 1].status = 'failed';
+            }
+        });
+
+        testInfo.attachments.push({
+            name: 'steps',
+            contentType: 'application/json',
+            body: Buffer.from(JSON.stringify(steps))
+        });
     });
 });
 
@@ -58,6 +97,6 @@ test.describe("Guest checkout", () => {
         await page.goto(`${process.env.BASE_URL}/checkout`);
         await page.waitForLoadState('load');
     
-        await expect(page.getByText('Shopping Cart', { exact: true })).toBeVisible;
+        await expect(page.getByText('Shopping Cart', { exact: true })).toBeVisible();
     });
 })

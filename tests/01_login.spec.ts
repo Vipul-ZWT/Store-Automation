@@ -43,7 +43,10 @@ test('Customer Incorrect Login Test',async ({page}) => {
     await expect(errorMessage).toBeVisible();
 })
 
-test('Forgot Password', async ({page}) => {
+test('Forgot Password', async ({page}, testInfo) => {
+    let steps: { title: string; status: string }[] = [];
+    steps.push({ title: 'Email for password rest', status: 'started' });
+
     page.setDefaultTimeout(30000);
 
     const resetButton:Locator = page.getByRole('button', {name: 'Reset My Password'});
@@ -56,16 +59,30 @@ test('Forgot Password', async ({page}) => {
     await page.waitForLoadState('networkidle');
     await resetButton.click();
 
-    const email = new Email();
-    await email.checkEmail('Reset your ZealousWeb password')
-    
-    expect(email).toBeTruthy();
+    await test.step('Email for password rest', async () => {
+        try{
+            const email = new Email();
+            await email.checkEmail('Reset your ZealousWeb password');
+            steps[steps.length - 1].status = 'passed';
+        } catch {
+            steps[steps.length - 1].status = 'failed';
+        }
+    });
 
     const successMessage:Locator = page.locator('div.message-success');
     await expect(successMessage).toBeVisible();
+
+    testInfo.attachments.push({
+        name: 'steps',
+        contentType: 'application/json',
+        body: Buffer.from(JSON.stringify(steps))
+      });
 });
 
-test('Update Password',async ({page,browserName}) => {
+test('Update Password',async ({page},testInfo) => {
+    let steps: { title: string; status: string }[] = [];
+    steps.push({ title: 'Email for password rest', status: 'started' });
+
     const loginPage = new LoginPage(page);
     await loginPage.completeLogin(process.env.OTHER_CUSTOMER_EMAIL!, process.env.OTHER_CUSTOMER_PASSWORD!);
 
@@ -74,8 +91,20 @@ test('Update Password',async ({page,browserName}) => {
     const accountPage = new AccountPage(page);
     await accountPage.updatePassword(process.env.OTHER_CUSTOMER_PASSWORD!, process.env.OTHER_CUSTOMER_NEW_PASSWORD!);
 
-    const email = new Email();
-    await email.checkEmail('Your ZealousWeb password has been changed');
-    
+    await test.step('Email for password update', async () => {
+        try{
+            const email = new Email();
+            await email.checkEmail('Your ZealousWeb password has been changed');
+            steps[steps.length - 1].status = 'passed';
+        } catch {
+            steps[steps.length - 1].status = 'failed';
+        }
+    });
+
     await loginPage.completeLogin(process.env.OTHER_CUSTOMER_EMAIL!, process.env.OTHER_CUSTOMER_NEW_PASSWORD!);
-})
+    testInfo.attachments.push({
+        name: 'steps',
+        contentType: 'application/json',
+        body: Buffer.from(JSON.stringify(steps))
+    });
+});

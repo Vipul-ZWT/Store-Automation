@@ -8,20 +8,30 @@ class PDFReporter {
   }
 
   onTestEnd(test, result) {
+
+    let steps = [];
+    const stepsAttachment = result.attachments.find(att => att.name === 'steps');
+    if (stepsAttachment && stepsAttachment.body) {
+      try {
+        const buffer = stepsAttachment.body;
+        steps = JSON.parse(buffer.toString('utf-8'));
+      } catch (e) {
+        console.error('Error parsing steps:', e);
+      }
+    }
+
     this.results.push({
       title: test.title,
       project: test._projectId || 'unknown',
-      status: result.status
+      status: result.status,
+      steps: steps
     });
   }
 
   async onEnd() {
     const doc = new PDFDocument({ margin: 40 });
     doc.pipe(fs.createWriteStream('playwright-report.pdf'));
-  
-    // Page background color (if desired for entire page)
-    // doc.rect(0, 0, doc.page.width, doc.page.height).fill('#ffffff');
-    // doc.fillColor('black');
+
     const logoX = 40;
     const logoY = 30;
     const logoWidth = 50;
@@ -83,17 +93,17 @@ class PDFReporter {
   
       // Text
       doc.text(test.title, xTest, y, { width: xBrowser - xTest - 10 });
-      doc.text(test.project || 'unknown', xBrowser, y, { width: xStatus - xBrowser - 10 });
+      doc.text(test.project == 'setup-chromium' ? 'chromium' : test.project || 'unknown', xBrowser, y, { width: xStatus - xBrowser - 10 });
   
       // Status
       let statusText = '';
       let statusColor = 'black';
       if (test.status === 'passed') {
         statusText = 'PASSED';
-        statusColor = 'green';
+        statusColor = '#006400';
       } else if (test.status === 'failed') {
         statusText = 'FAILED';
-        statusColor = 'red';
+        statusColor = '#8B0000';
       } else {
         statusText = 'SKIPPED';
         statusColor = '#FF8C00';
@@ -108,7 +118,49 @@ class PDFReporter {
          .lineWidth(0.5)
          .stroke();
   
-      doc.moveDown(0.5); // ~5px spacing
+      doc.moveDown(0.5);
+
+      if (test.steps && test.steps.length > 0) {      
+        doc.moveDown(0.5);
+
+        const xStepTitle = xTest + 30;
+        const xStepStatus = xStatus;
+
+        test.steps.forEach((step) => {
+          const y = doc.y;
+          const bullet = `${step.title}`;
+          const statusText = step.status?.toUpperCase() || 'SKIPPED';
+
+          doc.fillColor('black')
+          .fontSize(10)
+          .font('Helvetica')
+          .text(bullet, xStepTitle, y, { width: xStepStatus - xStepTitle - 10 });
+          
+          let statusColor = 'black';
+          if (step.status === 'passed') {
+            statusColor = '#006400';
+          } else if (step.status === 'failed') {
+            statusColor = '#8B0000';
+          } else{
+            statusColor = '#FF8C00';
+          }
+
+          doc.fillColor(statusColor)
+            .text(statusText, xStepStatus, y);
+
+          doc.moveDown(0.5);
+        });
+      
+        // Draw bottom border after all steps
+        const borderY = doc.y;
+        doc.moveTo(xTest - 5, borderY)
+           .lineTo(xTest - 5 + tableWidth, borderY)
+           .strokeColor('lightblue')
+           .lineWidth(0.5)
+           .stroke();
+      
+        doc.moveDown(0.5);
+      }
     }
   
     doc.end();

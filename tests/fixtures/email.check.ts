@@ -15,7 +15,7 @@ class Email {
                 label: 'SENT'
             }
         );
-        
+
         expect(email).toBeTruthy();
     }
     
