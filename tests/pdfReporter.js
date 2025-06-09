@@ -1,5 +1,6 @@
 import fs from 'fs';
 import PDFDocument from 'pdfkit';
+import path from 'path';
 
 class PDFReporter {
   constructor() {
@@ -19,15 +20,26 @@ class PDFReporter {
     doc.pipe(fs.createWriteStream('playwright-report.pdf'));
   
     // Page background color (if desired for entire page)
-    doc.rect(0, 0, doc.page.width, doc.page.height).fill('#ffffff'); // Light blue background
-    doc.fillColor('black');
-  
-    // Title
+    // doc.rect(0, 0, doc.page.width, doc.page.height).fill('#ffffff');
+    // doc.fillColor('black');
+    const logoX = 40;
+    const logoY = 30;
+    const logoWidth = 50;
+    const titleX = logoX + logoWidth + 20;
+    const titleY = logoY + 15;
+
+    try {
+      doc.image(path.resolve('logo.jpg'), logoX, logoY, { width: logoWidth });
+    } catch (err) {
+      console.error('Failed to load logo:', err.message);
+    }
+
+    // Add the title right next to the image
     doc.fillColor('#157FAE')
-       .fontSize(16)
-       .font('Helvetica-Bold')
-       .text('Zealstore Report', { align: 'center' })
-       .moveDown(1);
+      .fontSize(16)
+      .font('Helvetica-Bold')
+      .text('Zealousweb Store Report', titleX, titleY)
+      .moveDown(1.5);
   
     // Column positions
     const xTest = 50;
@@ -67,7 +79,7 @@ class PDFReporter {
       doc.rect(xTest - padding, y - padding, tableWidth, rowHeight).fill(rowColor);
   
       // Re-apply text settings after fill
-      doc.fillColor('black').font('Helvetica').fontSize(12);
+      doc.fillColor('black').font('Helvetica').fontSize(10);
   
       // Text
       doc.text(test.title, xTest, y, { width: xBrowser - xTest - 10 });
