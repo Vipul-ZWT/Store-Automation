@@ -43,7 +43,7 @@ test('Customer Incorrect Login Test',async ({page}) => {
     await expect(errorMessage).toBeVisible();
 })
 
-test('Customer forgot password flow', async ({page}) => {
+test('Forgot Password', async ({page}) => {
     page.setDefaultTimeout(30000);
 
     const resetButton:Locator = page.getByRole('button', {name: 'Reset My Password'});

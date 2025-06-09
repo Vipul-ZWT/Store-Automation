@@ -7,8 +7,8 @@ import path from "path";
 test.describe.serial('Stripe Order', () => {
     let orderNumber: string;
     test('Subscription Product Checkout', async ({ page }) => {
-        const cartPage = new CartPage(page);
-        await cartPage.addToCart(`${process.env.BASE_URL}/${process.env.PRODUCT_URL}`,process.env.PRODUCT_NAME!);
+        // const cartPage = new CartPage(page);
+        // await cartPage.addToCart(`${process.env.BASE_URL}/${process.env.PRODUCT_URL}`,process.env.PRODUCT_NAME!);
 
         const checkoutPage = new CheckoutPage(page);
         await checkoutPage.placeOrder();
@@ -52,12 +52,12 @@ test.describe.serial('Stripe Order', () => {
     });
 });
 
-// test.describe("Guest checkout", () => {
-//     test.use({storageState: {cookies: [], origins: []}});
-//     test('Guest checkout', async ({page}) => {
-//         await page.goto(`${process.env.BASE_URL}/checkout`);
-//         await page.waitForLoadState('load');
+test.describe("Guest checkout", () => {
+    test.use({storageState: {cookies: [], origins: []}});
+    test('Guest checkout', async ({page}) => {
+        await page.goto(`${process.env.BASE_URL}/checkout`);
+        await page.waitForLoadState('load');
     
-//         await expect(page.getByText('Shopping Cart', { exact: true })).toBeVisible;
-//     });
-// })
+        await expect(page.getByText('Shopping Cart', { exact: true })).toBeVisible;
+    });
+})

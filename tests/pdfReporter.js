@@ -96,7 +96,7 @@ class PDFReporter {
         statusColor = 'red';
       } else {
         statusText = 'SKIPPED';
-        statusColor = 'orange';
+        statusColor = '#FF8C00';
       }
   
       doc.fillColor(statusColor).text(statusText, xStatus, y, { width: 50 });
