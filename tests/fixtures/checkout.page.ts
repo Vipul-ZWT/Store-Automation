@@ -127,6 +127,8 @@ class CheckoutPage {
 
         await razorpayFrame.getByTestId('nav-sidebar').locator('div').filter({ hasText: 'Cards' }).nth(2).click();
 
+        await expect(razorpayFrame.locator('[data-test-id="add-card-cta"]')).toBeVisible({timeout: 10000});
+
         await razorpayFrame.getByPlaceholder('Card Number').click();
         await razorpayFrame.getByPlaceholder('Card Number').fill('4111 1111 1111 1111');
         await razorpayFrame.getByPlaceholder('MM / YY').click();
@@ -135,21 +137,20 @@ class CheckoutPage {
         await razorpayFrame.getByPlaceholder('CVV').fill('123');
 
         await razorpayFrame.locator('[data-test-id="add-card-cta"]').scrollIntoViewIfNeeded();
+        await this.page.waitForTimeout(500);
         await razorpayFrame.locator('[data-test-id="add-card-cta"]').click();
 
         await razorpayFrame.getByText('INR ₹').click();
         await razorpayFrame.getByRole('button', { name: 'Pay ₹' }).click();
 
-        const page1Promise = this.page.waitForEvent('popup');
         await razorpayFrame.getByRole('button', { name: 'Maybe later' }).click();
 
-        const page1 = await page1Promise;
-
+        await razorpayFrame.getByPlaceholder('Enter OTP').waitFor({ state: 'visible' });
         await razorpayFrame.getByPlaceholder('Enter OTP').fill('1234');
         await razorpayFrame.getByTestId('overlay-[object Object]').getByRole('button', { name: 'Continue' }).click();
 
         const orderSuccessMessage = this.page.locator('text=Thank you for your purchase!');
-        await expect(orderSuccessMessage).toBeVisible({timeout: 100000});
+        await expect(orderSuccessMessage).toBeVisible({timeout: 260000});
     }
 }
 

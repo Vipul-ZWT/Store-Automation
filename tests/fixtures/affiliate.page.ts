@@ -91,6 +91,14 @@ class AffiliatePage {
 
         await expect(rowLocator).toBeVisible();
     }
+
+    async checkAffiliateCommission(){
+        const rowLocator = this.page.locator("#commission-logs-table tbody tr").first().filter({
+            hasText: 'Vipul Patel'
+        });
+
+        await expect(rowLocator).toBeVisible();
+    }
 }
 
 export default AffiliatePage;
