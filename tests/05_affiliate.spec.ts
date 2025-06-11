@@ -72,6 +72,41 @@ test('Razorpay Testing', async ({ page },testInfo) => {
 test.describe('Affiliate',async () => {
     test.use({storageState : {cookies: [], origins: []}});
 
+    test('Affiliate Withdrawl',async ({page},testInfo) => {
+        let steps: { title: string; status: string }[] = [];
+        const loginPage = new LoginPage(page);
+        await loginPage.completeLogin(process.env.AFFILIATE_EMAIL!, process.env.AFFILIATE_PASSWORD!);
+
+        await page.goto(`${process.env.BASE_URL}/affiliate/account/withdraw/`);
+        
+        const affiliate = new AffiliatePage(page);
+        await test.step('Affiliate Withdrawal', async() => {
+            steps.push({ title: 'Affiliate Withdrawal', status: 'started' });
+            try {
+                await affiliate.myWithdrawal();
+                steps[steps.length - 1].status = 'passed';
+            } catch (error) {
+                steps[steps.length - 1].status = 'failed';
+            }
+        });
+
+        await test.step('Affiliate Cancel Withdrawal', async() => {
+            steps.push({ title: 'Affiliate Cancel Withdrawal', status: 'started' });
+            try {
+                await affiliate.cancelWithdrawal();
+                steps[steps.length - 1].status = 'passed';
+            } catch (error) {
+                steps[steps.length - 1].status = 'failed';
+            }
+        });
+
+        testInfo.attachments.push({
+            name: 'steps',
+            contentType: 'application/json',
+            body: Buffer.from(JSON.stringify(steps))
+        });
+    });
+
     test('Check Affiliate Commission', async ({page}) => {
         const loginPage = new LoginPage(page);
         await loginPage.completeLogin(process.env.AFFILIATE_EMAIL!, process.env.AFFILIATE_PASSWORD!);
@@ -81,39 +116,4 @@ test.describe('Affiliate',async () => {
         const affiliate = new AffiliatePage(page);
         await affiliate.checkAffiliateCommission();
     })
-
-//     test('Affiliate Withdrawl',async ({page},testInfo) => {
-//         let steps: { title: string; status: string }[] = [];
-//         const loginPage = new LoginPage(page);
-//         await loginPage.completeLogin(process.env.AFFILIATE_EMAIL!, process.env.AFFILIATE_PASSWORD!);
-
-//         await page.goto(`${process.env.BASE_URL}/affiliate/account/withdraw/`);
-        
-//         const affiliate = new AffiliatePage(page);
-//         await test.step('Affiliate Withdrawal', async() => {
-//             steps.push({ title: 'Affiliate Withdrawal', status: 'started' });
-//             try {
-//                 await affiliate.myWithdrawal();
-//                 steps[steps.length - 1].status = 'passed';
-//             } catch (error) {
-//                 steps[steps.length - 1].status = 'failed';
-//             }
-//         });
-
-//         await test.step('Affiliate Cancel Withdrawal', async() => {
-//             steps.push({ title: 'Affiliate Cancel Withdrawal', status: 'started' });
-//             try {
-//                 await affiliate.cancelWithdrawal();
-//                 steps[steps.length - 1].status = 'passed';
-//             } catch (error) {
-//                 steps[steps.length - 1].status = 'failed';
-//             }
-//         });
-
-//         testInfo.attachments.push({
-//             name: 'steps',
-//             contentType: 'application/json',
-//             body: Buffer.from(JSON.stringify(steps))
-//         });
-//     });
-})
+});
