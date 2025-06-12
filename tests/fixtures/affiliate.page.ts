@@ -92,11 +92,13 @@ class AffiliatePage {
         await expect(rowLocator).toBeVisible();
     }
 
-    async checkAffiliateCommission(){
-        const rowLocator = this.page.locator("#commission-logs-table tbody tr").first().filter({
-            hasText: 'Vipul Patel'
-        });
 
+    async checkAffiliateCommission() {
+        const fullName = `${process.env.AFFILIATE_FIRST_NAME!} ${process.env.AFFILIATE_LAST_NAME!}`;
+      
+        const firstTable = this.page.locator('#affiliate-withdraws-history').first();
+        const rowLocator = firstTable.locator('tbody tr').filter({hasText: fullName}).first();
+      
         await expect(rowLocator).toBeVisible();
     }
 }

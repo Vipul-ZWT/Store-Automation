@@ -27,7 +27,7 @@ export default defineConfig({
   //   ['line'],
   //   ['json', {  outputFile: 'test-results.json' }]
   // ],
-  reporter: [['./tests/pdfReporter.js']],
+  reporter: [['./tests/pdfReporter.js'],['html',{open: 'on-failure'}]],
   // reporter: 'html',
   timeout: 60000,
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -64,7 +64,7 @@ export default defineConfig({
         storageState: 'playwright/.auth/user.chromium.json',
         browserName: 'chromium',
       },
-      dependencies: ['setup-chromium'],
+      // dependencies: ['setup-chromium'],
       
     },
     {
@@ -82,14 +82,16 @@ export default defineConfig({
     // },
 
     /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
+    {
+      name: 'Pixel 5',
+      testDir: './tests/responsive',
+      use: { ...devices['Pixel 5'] },
+    },
+    {
+      name: 'iPhone 12',
+      testDir: './tests/responsive',
+      use: { ...devices['iPhone 12'] },
+    },
 
     /* Test against branded browsers. */
     // {

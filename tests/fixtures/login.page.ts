@@ -49,13 +49,13 @@ class LoginPage {
         await this.page.goto(`${process.env.BASE_URL}/customer/account/create/`);
         await this.firstName.fill(process.env.AFFILIATE_FIRST_NAME!);
         await this.lastName.fill(process.env.AFFILIATE_LAST_NAME!);
-        await this.registrationEmail.fill(process.env.AFFILIATE_EMAIL!);
-        await this.registrationPassword.fill(process.env.AFFILIATE_PASSWORD!);
-        await this.passwordConfirmation.fill(process.env.AFFILIATE_PASSWORD_CONFIRMATION!);
+        await this.registrationEmail.fill(process.env.AFFILIATE_CUSTOMER_EMAIL!);
+        await this.registrationPassword.fill(process.env.AFFILIATE_CUSTOMER_PASSWORD!);
+        await this.passwordConfirmation.fill(process.env.AFFILIATE_CUSTOMER_PASSWORD!);
         await this.createAccountButton.scrollIntoViewIfNeeded();
         await this.createAccountButton.click();
 
-        expect(this.page.waitForURL(`${process.env.BASE_URL}/customer/account/`)).toBeTruthy();
+        await this.page.waitForURL(`${process.env.BASE_URL}/customer/account/`)
     }
 }
 

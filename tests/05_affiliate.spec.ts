@@ -5,16 +5,26 @@ import CheckoutPage from './fixtures/checkout.page';
 import LoginPage from './fixtures/login.page';
 import Email from './fixtures/email.check';
 
+test.use({storageState : {cookies: [], origins: []}});
+
+test('Affiliate Customer Registration', async ({page}, testInfo) => {
+    const register = new LoginPage(page);
+    await register.createAccount()
+});
 
 test('Razorpay Testing', async ({ page },testInfo) => {
-    test.setTimeout(260000);
+    test.setTimeout(280000);
     let orderNumber: string;
     let steps: { title: string; status: string }[] = [];
 
+    const login = new LoginPage(page);
+    await login.completeLogin(process.env.AFFILIATE_CUSTOMER_EMAIL!, process.env.AFFILIATE_CUSTOMER_PASSWORD!);
+
     const cartPage = new CartPage(page);
     const affiliate = new AffiliatePage(page);
+    
 
-    await page.goto(`${process.env.BASE_URL}#u6`);
+    await page.goto(`${process.env.BASE_URL}/affiliate/index/index#u8`);
 
     await cartPage.addToCart(`${process.env.BASE_URL}/${process.env.PRODUCT_URL}`,process.env.PRODUCT_NAME!);
 
@@ -70,8 +80,6 @@ test('Razorpay Testing', async ({ page },testInfo) => {
 });
 
 test.describe('Affiliate',async () => {
-    test.use({storageState : {cookies: [], origins: []}});
-
     test('Affiliate Withdrawl',async ({page},testInfo) => {
         let steps: { title: string; status: string }[] = [];
         const loginPage = new LoginPage(page);
