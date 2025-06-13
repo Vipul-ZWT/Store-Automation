@@ -27,7 +27,7 @@ export default defineConfig({
   //   ['line'],
   //   ['json', {  outputFile: 'test-results.json' }]
   // ],
-  reporter: [['./tests/pdfReporter.js'],['html',{open: 'on-failure'}]],
+  reporter: [['./tests/pdfReporter.js'],['html',{open: 'always'}]],
   // reporter: 'html',
   timeout: 60000,
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -38,6 +38,7 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
     headless: false,
+    video: 'on'
   },
 
   /* Configure projects for major browsers */
@@ -84,12 +85,12 @@ export default defineConfig({
     /* Test against mobile viewports. */
     {
       name: 'Pixel 5',
-      testDir: './tests/responsive',
+      testMatch: /06_responsive\.spec\.ts/,
       use: { ...devices['Pixel 5'] },
     },
     {
       name: 'iPhone 12',
-      testDir: './tests/responsive',
+      testMatch: /06_responsive\.spec\.ts/,
       use: { ...devices['iPhone 12'] },
     },
 
