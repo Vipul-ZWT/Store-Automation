@@ -42,6 +42,8 @@ async function ApplyFilter(page: Page){
     await expect(page.locator('.filter-clear')).toBeVisible();
 }
 
+test.use({...devices['Pixel 5']});
+
 test.describe('Responsive Tests', () => {
     test('Toggle Menu', async ({ page }) => {
         await page.goto(`${process.env.BASE_URL}`);
@@ -57,7 +59,7 @@ test.describe('Responsive Tests', () => {
     
     test('Check for ShopBy menu', async ({ page }) => {
       await page.goto(`${process.env.BASE_URL}/magento2-extensions`);
-      await page.getByRole('tab', { name: 'Shop By' }).click();
+      await page.getByRole('tab', { name: 'Shop By test' }).click();
       await expect(page.getByRole('tablist').filter({ hasText: 'Shop By' })).toBeVisible();
     });
     
@@ -116,8 +118,9 @@ test.describe('Responsive Tests', () => {
         expect(isVisible).toBe(false);
     });
     
-    test('Image size and aspect ratio', async ({ page },testInfo) => {
+    test('Image size and aspect ratio (PLP)', async ({ page },testInfo) => {
         let steps: { title: string; status: string }[] = [];
+        let failed: boolean = false;
         await page.goto(`${process.env.BASE_URL}/magento2-extensions`);
     
         const imageUrls = await page.$$eval('.product-image-photo', (imgs) => imgs.map((img) => (img as HTMLImageElement).src));
@@ -138,8 +141,9 @@ test.describe('Responsive Tests', () => {
                     expect(img.sizeKB).toBeLessThan(500);
                 }
                 steps[steps.length - 1].status = 'passed';
-            } catch  {
+            } catch {
                 steps[steps.length - 1].status = 'failed';
+                failed = true;
             }
         });
 
@@ -154,8 +158,9 @@ test.describe('Responsive Tests', () => {
                 }
 
                 steps[steps.length - 1].status = 'passed';
-            } catch  {
+            } catch {
                 steps[steps.length - 1].status = 'failed';
+                failed = true;
             }
         });
 
@@ -164,5 +169,64 @@ test.describe('Responsive Tests', () => {
             contentType: 'application/json',
             body: Buffer.from(JSON.stringify(steps))
         });
+
+        if (failed) {
+            throw new Error('Image size or aspect ratio test failed');
+        }
+    });
+
+    test('Image size and aspect ratio (PDP)', async ({ page },testInfo) => {
+        let steps: { title: string; status: string }[] = [];
+        let failed = false;
+        await page.goto(`${process.env.BASE_URL}/${process.env.PRODUCT_URL}`);
+
+        const imageUrls = await page.$$eval('.product-image-gallery .carousel-item a img', (imgs) => imgs.map((img) => (img as HTMLImageElement).src));
+
+        const lastTwoUrls = imageUrls;
+        const imageMeta = await Promise.all(
+            lastTwoUrls.map(async (url) => {
+                return await getImageResponse(url);
+            })
+        );
+
+        await test.step('Image size', async () => {
+            steps.push({ title: 'Image size', status: 'started' });
+            try {
+                for (const img of imageMeta) {
+                    expect(img.sizeKB).toBeLessThan(550);
+                }
+                steps[steps.length - 1].status = 'passed';
+            } catch {
+                steps[steps.length - 1].status = 'failed';
+                failed = true;
+            }
+        });
+
+        await test.step('Aspect ratio', async () => {
+            steps.push({ title: 'Aspect ratio', status: 'started' });
+            try {
+                const referenceAspectRatio = imageMeta[0].aspectRatio;
+    
+                for (let i = 1; i < imageMeta.length; i++) {
+                    const currentAspectRatio = imageMeta[i].aspectRatio;
+                    expect(Math.abs(currentAspectRatio - referenceAspectRatio)).toBeLessThan(5);
+                }
+
+                steps[steps.length - 1].status = 'passed';
+            } catch {
+                steps[steps.length - 1].status = 'failed';
+                failed = true;
+            }
+        });
+
+        testInfo.attachments.push({
+            name: 'steps',
+            contentType: 'application/json',
+            body: Buffer.from(JSON.stringify(steps))
+        });
+
+        if (failed) {
+            throw new Error('Image size or aspect ratio test failed');
+        }
     });
 });
