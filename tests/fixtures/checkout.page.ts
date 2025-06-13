@@ -5,6 +5,7 @@ class CheckoutPage {
     readonly page: Page;
     readonly billingAddressSection: Locator;
     readonly grandTotal: Locator;
+    readonly estimatedTotal: Locator;
     readonly placeOrderButton: Locator;
     readonly firstNameField: Locator;
     readonly lastNameField: Locator;
@@ -24,6 +25,7 @@ class CheckoutPage {
         this.billingAddressSection = page.locator('[data-bind*="isAddressFormVisible"]');
         this.stirpePaymentSection = page.locator('[data-bind*="visible: isPaymentFormVisible"]');
         this.grandTotal = page.locator("tr.grand.totals .price");
+        this.estimatedTotal = page.locator(".estimated-price");
         this.placeOrderButton = page.locator("button[title='Place Order']");
         this.payWithRazorPayButton = page.locator("button[title='Pay with Razorpay']");
         this.firstNameField = page.getByRole('textbox', { name: /first name/i });
@@ -73,23 +75,23 @@ class CheckoutPage {
             }
         }
 
-        if(await this.updateAddressButton.isVisible()) {
+        if(await this.updateAddressButton.isVisible({timeout: 5000})) {
             await this.updateAddressButton.scrollIntoViewIfNeeded();
             await this.updateAddressButton.click();
-    
+
             if (await this.stirpePaymentSection.isVisible()) {
                 await this.waitForStripeIframeReload();
             }
         }
     }
 
-    async placeOrder() {
+    async placeOrder(isMobile: boolean = false) {
         await this.page.goto(`${process.env.BASE_URL}/checkout/#payment`);
-        await expect(this.grandTotal).toBeVisible({timeout: 60000});
+        isMobile ? await expect(this.estimatedTotal).toBeVisible({timeout: 60000}) : await expect(this.grandTotal).toBeVisible({timeout: 60000});
 
         await this.fillBillingAddressIfVisible();
 
-        const priceText = await this.grandTotal.innerText();
+        const priceText = isMobile ? await this.estimatedTotal.innerText() : await this.grandTotal.innerText();
         if(priceText.includes('$')) {
             if(await this.stirpePaymentSection.isVisible()) {
                 await this.fillStripeCardInputs();
@@ -112,9 +114,9 @@ class CheckoutPage {
         await expect(this.cancelSubscriptionButton).toBeHidden();
     }
 
-    async placeOrderRazorpay(){
+    async placeOrderRazorpay(isMobile: boolean = false) {
         await this.page.goto(`${process.env.BASE_URL}/checkout/#payment`);
-        await expect(this.grandTotal).toBeVisible({timeout: 60000});
+        isMobile ? await expect(this.estimatedTotal).toBeVisible({timeout: 60000}) : await expect(this.grandTotal).toBeVisible({timeout: 60000});
 
         await this.fillBillingAddressIfVisible(true);
 
@@ -125,9 +127,13 @@ class CheckoutPage {
 
         await razorpayFrame.getByRole('textbox', { name: 'Mobile number' }).fill('9725406871');
 
-        await razorpayFrame.getByTestId('nav-sidebar').locator('div').filter({ hasText: 'Cards' }).nth(2).click();
-
-        await expect(razorpayFrame.locator('[data-test-id="add-card-cta"]')).toBeVisible({timeout: 10000});
+        if(isMobile){
+            await razorpayFrame.getByTestId('screen-container').locator('div').filter({ hasText: 'Cards' }).nth(3).click();
+        }
+        else{
+            await razorpayFrame.getByTestId('nav-sidebar').locator('div').filter({ hasText: 'Cards' }).nth(2).click();
+            await expect(razorpayFrame.locator('[data-test-id="add-card-cta"]')).toBeVisible({timeout: 10000});
+        }
 
         await razorpayFrame.getByPlaceholder('Card Number').click();
         await razorpayFrame.getByPlaceholder('Card Number').fill('4111 1111 1111 1111');
@@ -136,12 +142,18 @@ class CheckoutPage {
         await razorpayFrame.getByPlaceholder('CVV').click();
         await razorpayFrame.getByPlaceholder('CVV').fill('123');
 
-        await razorpayFrame.locator('[data-test-id="add-card-cta"]').scrollIntoViewIfNeeded();
-        await this.page.waitForTimeout(500);
-        await razorpayFrame.locator('[data-test-id="add-card-cta"]').click();
-
-        await razorpayFrame.getByText('INR ₹').click();
-        await razorpayFrame.getByRole('button', { name: 'Pay ₹' }).click();
+        if(isMobile){
+            await razorpayFrame.getByText('INR ₹').click();
+            await razorpayFrame.getByTestId('bottom-cta-button').click();
+        }
+        else{
+            await razorpayFrame.locator('[data-test-id="add-card-cta"]').scrollIntoViewIfNeeded();
+            await this.page.waitForTimeout(500);
+            await razorpayFrame.locator('[data-test-id="add-card-cta"]').click();
+    
+            await razorpayFrame.getByText('INR ₹').click();
+            await razorpayFrame.getByRole('button', { name: 'Pay ₹' }).click();
+        }
 
         await razorpayFrame.getByRole('button', { name: 'Maybe later' }).click();
 
@@ -152,6 +164,7 @@ class CheckoutPage {
         const orderSuccessMessage = this.page.locator('text=Thank you for your purchase!');
         await expect(orderSuccessMessage).toBeVisible({timeout: 260000});
     }
+
 }
 
 export default CheckoutPage;

@@ -27,7 +27,7 @@ export default defineConfig({
   //   ['line'],
   //   ['json', {  outputFile: 'test-results.json' }]
   // ],
-  reporter: [['./tests/pdfReporter.js'],['html',{open: 'always'}]],
+  reporter: [['./tests/pdfReporter.js'],['html',{open: 'always'}],['list']],
   // reporter: 'html',
   timeout: 60000,
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -65,7 +65,7 @@ export default defineConfig({
         storageState: 'playwright/.auth/user.chromium.json',
         browserName: 'chromium',
       },
-      // dependencies: ['setup-chromium'],
+      dependencies: ['setup-chromium'],
       
     },
     {
@@ -83,16 +83,20 @@ export default defineConfig({
     // },
 
     /* Test against mobile viewports. */
-    {
-      name: 'Pixel 5',
-      testMatch: /06_responsive\.spec\.ts/,
-      use: { ...devices['Pixel 5'] },
-    },
-    {
-      name: 'iPhone 12',
-      testMatch: /06_responsive\.spec\.ts/,
-      use: { ...devices['iPhone 12'] },
-    },
+    // {
+    //   name: 'Pixel 5',
+    //   testMatch: /06_responsive\.spec\.ts/,
+    //   use: { 
+    //     ...devices['Pixel 5'],
+    //     storageState: 'playwright/.auth/user.chromium.json',
+    //   },
+    //   dependencies: ['setup-chromium'],
+    // },
+    // {
+    //   name: 'iPhone 12',
+    //   testMatch: /06_responsive\.spec\.ts/,
+    //   use: { ...devices['iPhone 12'] },
+    // },
 
     /* Test against branded browsers. */
     // {

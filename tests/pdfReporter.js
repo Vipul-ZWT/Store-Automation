@@ -8,7 +8,6 @@ class PDFReporter {
   }
 
   onTestEnd(test, result) {
-
     let steps = [];
     const stepsAttachment = result.attachments.find(att => att.name === 'steps');
     if (stepsAttachment && stepsAttachment.body) {
@@ -31,6 +30,13 @@ class PDFReporter {
   async onEnd() {
     const doc = new PDFDocument({ margin: 40 });
     doc.pipe(fs.createWriteStream('playwright-report.pdf'));
+
+    const ensureSpace = (doc, requiredHeight = 50) => {
+      const remaining = doc.page.height - doc.y - doc.page.margins.bottom;
+      if (remaining < requiredHeight) {
+        doc.addPage();
+      }
+    };
 
     const logoX = 40;
     const logoY = 30;
@@ -62,10 +68,10 @@ class PDFReporter {
     // Header
     const headerY = doc.y;
     doc.rect(xTest - padding, headerY - padding, tableWidth, rowHeight).fill('#f7fbfd');
-    doc.fillColor('#157FAE').fontSize(12).font('Helvetica-Bold');
+    doc.fillColor('#157FAE').fontSize(10).font('Helvetica-Bold');
   
     doc.text('Test Name', xTest, headerY, { width: xBrowser - xTest - 10 });
-    doc.text('Browser', xBrowser, headerY, { width: xStatus - xBrowser - 10 });
+    doc.text('Browser/Device', xBrowser, headerY, { width: xStatus - xBrowser - 10 });
     doc.text('Status', xStatus, headerY);
 
     const headerBottomY = headerY + rowHeight - padding;
@@ -127,6 +133,7 @@ class PDFReporter {
         const xStepStatus = xStatus;
 
         test.steps.forEach((step) => {
+          ensureSpace(doc, 20);
           const y = doc.y;
           const bullet = `${step.title}`;
           const statusText = step.status?.toUpperCase() || 'SKIPPED';

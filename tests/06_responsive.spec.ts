@@ -1,4 +1,7 @@
 import { test, expect, devices, Page } from '@playwright/test';
+import CartPage from './fixtures/cart.page';
+import { runSubscriptionCheckoutTest } from './utils/checkoutTests';
+import { runRazorpayCheckoutTest } from './utils/razorpayCheckout';
 import * as http from 'http';
 import * as url from 'url';
 import imageSize from 'image-size';
@@ -59,7 +62,7 @@ test.describe('Responsive Tests', () => {
     
     test('Check for ShopBy menu', async ({ page }) => {
       await page.goto(`${process.env.BASE_URL}/magento2-extensions`);
-      await page.getByRole('tab', { name: 'Shop By test' }).click();
+      await page.getByRole('tab', { name: 'Shop By' }).click();
       await expect(page.getByRole('tablist').filter({ hasText: 'Shop By' })).toBeVisible();
     });
     
@@ -228,5 +231,23 @@ test.describe('Responsive Tests', () => {
         if (failed) {
             throw new Error('Image size or aspect ratio test failed');
         }
+    });
+
+    test('Add to cart', async ({ page }) => {
+        const cartPage = new CartPage(page);
+        await cartPage.addToCart(`${process.env.BASE_URL}/${process.env.PRODUCT_URL}`, process.env.PRODUCT_NAME!);
+    });
+
+    test('Subscription Product Checkout (Mobile)', async ({ page }, testInfo) => {
+        let orderNumber = '';
+        await runSubscriptionCheckoutTest(page,testInfo,true,(number) => orderNumber = number);
+    });
+
+    test('Razorpay Product Checkout(Mobile)', async ({ page }, testInfo) => {
+        test.setTimeout(285000);
+        let orderNumber = '';
+        const cartPage = new CartPage(page);
+        await cartPage.addToCart(`${process.env.BASE_URL}/${process.env.PRODUCT_URL}`, process.env.PRODUCT_NAME!);
+        await runRazorpayCheckoutTest(page, testInfo, true, (number) => orderNumber = number);
     });
 });
