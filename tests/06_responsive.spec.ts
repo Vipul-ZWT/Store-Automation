@@ -71,8 +71,8 @@ test.describe('Responsive Test Cases', () => {
         let steps: { title: string; status: string }[] = [];
         let failed = false;
 
-        await test.step('Apply filter', async () => {
-            steps.push({ title: 'Apply filter', status: 'started' });
+        await test.step('Apply Filter', async () => {
+            steps.push({ title: 'Apply Filter', status: 'started' });
             try {
                 await ApplyFilter(page);
                 steps[steps.length - 1].status = 'passed';
@@ -82,8 +82,8 @@ test.describe('Responsive Test Cases', () => {
             }
         });
 
-        await test.step('Remove filter', async () => {
-            steps.push({ title: 'Remove filter', status: 'started' });
+        await test.step('Remove Filter', async () => {
+            steps.push({ title: 'Remove Filter', status: 'started' });
             try {
                 const clearFilter = page.locator('.filter-clear');
                 await clearFilter.click();
@@ -157,8 +157,8 @@ test.describe('Responsive Test Cases', () => {
             }
         });
 
-        await test.step('Aspect ratio', async () => {
-            steps.push({ title: 'Aspect ratio', status: 'started' });
+        await test.step('Aspect Ratio', async () => {
+            steps.push({ title: 'Aspect Ratio', status: 'started' });
             try {
                 const referenceAspectRatio = imageMeta[0].aspectRatio;
     
