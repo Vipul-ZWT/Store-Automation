@@ -9,6 +9,7 @@ class PDFReporter {
 
   onTestEnd(test, result) {
     let steps = [];
+    let videoUrl = "-";
     const stepsAttachment = result.attachments.find(att => att.name === 'steps');
     if (stepsAttachment && stepsAttachment.body) {
       try {
@@ -19,11 +20,21 @@ class PDFReporter {
       }
     }
 
+    if(result.status != 'passed'){
+      const videoAttachment = result.attachments.find(att => att.name === 'video');
+      if (videoAttachment && videoAttachment.path) {
+        const absoluthePath = videoAttachment.path;
+        const relativePath = absoluthePath.replace('/var/www/html/','');
+        videoUrl = `http://192.168.1.238/${relativePath}`;
+      }
+    }
+
     this.results.push({
       title: test.title,
       project: test._projectId || 'unknown',
       status: result.status,
-      steps: steps
+      steps: steps,
+      video: videoUrl
     });
   }
 
@@ -61,6 +72,7 @@ class PDFReporter {
     const xTest = 50;
     const xBrowser = 300;
     const xStatus = 430;
+    const xVideo = 500;
     const tableWidth = 520;
     const rowHeight = 20;
     const padding = 5;
@@ -73,6 +85,7 @@ class PDFReporter {
     doc.text('Test Name', xTest, headerY, { width: xBrowser - xTest - 10 });
     doc.text('Browser/Device', xBrowser, headerY, { width: xStatus - xBrowser - 10 });
     doc.text('Status', xStatus, headerY);
+    doc.text('Attachment', xVideo, headerY);
 
     const headerBottomY = headerY + rowHeight - padding;
     doc.moveTo(xTest - padding, headerBottomY)
@@ -107,13 +120,12 @@ class PDFReporter {
       if (test.status === 'passed') {
         statusText = 'PASSED';
         statusColor = '#006400';
-      } else if (test.status === 'failed') {
+      } else {
         statusText = 'FAILED';
         statusColor = '#8B0000';
-      } else {
-        statusText = 'SKIPPED';
-        statusColor = '#FF8C00';
       }
+
+      test.video && test.status != 'passed' ? doc.fillColor("#157FAE").text("Click Here", xVideo, y, { width: 50,align: 'center',link: test.video, underline: true }) : doc.fillColor('#157FAE').text('-', xVideo, y, { width: 50, align: 'center' });
   
       doc.fillColor(statusColor).text(statusText, xStatus, y, { width: 50 });
   

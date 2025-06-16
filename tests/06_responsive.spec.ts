@@ -46,6 +46,7 @@ async function ApplyFilter(page: Page){
 }
 
 test.use({...devices['Pixel 5']});
+test.setTimeout(10000);
 
 test.describe('Responsive Test Cases', () => {
     test('Toggle Navigation Menu', async ({ page }) => {
@@ -68,6 +69,7 @@ test.describe('Responsive Test Cases', () => {
     
     test('Applied & Remove Filters', async ({ page }, testInfo) => {
         let steps: { title: string; status: string }[] = [];
+        let failed = false;
 
         await test.step('Apply filter', async () => {
             steps.push({ title: 'Apply filter', status: 'started' });
@@ -76,6 +78,7 @@ test.describe('Responsive Test Cases', () => {
                 steps[steps.length - 1].status = 'passed';
             } catch  {
                 steps[steps.length - 1].status = 'failed';
+                failed = true;
             }
         });
 
@@ -89,6 +92,7 @@ test.describe('Responsive Test Cases', () => {
                 steps[steps.length - 1].status = 'passed';
             } catch  {
                 steps[steps.length - 1].status = 'failed';
+                failed = true;
             }
         });
 
@@ -98,6 +102,9 @@ test.describe('Responsive Test Cases', () => {
             body: Buffer.from(JSON.stringify(steps))
         });
         
+        if(failed){
+            throw new Error("Applied and Removed Filter case failed")
+        }
     });
     
     test('Toggle Search Bar', async ({ page }) => {
