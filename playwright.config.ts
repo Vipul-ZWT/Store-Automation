@@ -27,7 +27,7 @@ export default defineConfig({
   //   ['line'],
   //   ['json', {  outputFile: 'test-results.json' }]
   // ],
-  reporter: [['./tests/pdfReporter.js'],['html',{open: 'always'}],['list']],
+  reporter: [['./tests/pdfReporter.js'],['html',{open: 'always'}]],
   // reporter: 'html',
   timeout: 60000,
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -51,13 +51,13 @@ export default defineConfig({
         browserName: 'chromium',
       },
     },
-    {
-      name: 'setup-firefox',
-      testMatch: /.*\.setup\.ts/,
-      use: {
-        ...devices['Desktop Firefox'],
-      },
-    },
+    // {
+    //   name: 'setup-firefox',
+    //   testMatch: /.*\.setup\.ts/,
+    //   use: {
+    //     ...devices['Desktop Firefox'],
+    //   },
+    // },
     {
       name: 'chromium',
       use: {
@@ -68,14 +68,14 @@ export default defineConfig({
       dependencies: ['setup-chromium'],
       
     },
-    {
-      name: 'firefox',
-      use: {
-        ...devices['Desktop Firefox'],
-        storageState: 'playwright/.auth/user.firefox.json',
-      },
-      dependencies: ['setup-firefox'],
-    },
+    // {
+    //   name: 'firefox',
+    //   use: {
+    //     ...devices['Desktop Firefox'],
+    //     storageState: 'playwright/.auth/user.firefox.json',
+    //   },
+    //   dependencies: ['setup-firefox'],
+    // },
 
     // {
     //   name: 'webkit',

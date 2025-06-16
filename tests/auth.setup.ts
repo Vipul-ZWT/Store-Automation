@@ -3,7 +3,7 @@ import path from 'path';
 import LoginPage from './fixtures/login.page';
 
 
-setup('Customer Authentication', async ({ page,browserName }) => {
+setup('Login via Direct URL', async ({ page,browserName }) => {
   const authFile = path.join(__dirname, `../playwright/.auth/user.${browserName}.json`);
   const browserEngine = browserName?.toUpperCase() || "UNKNOWN";
   let emailValue = process.env[`CUSTOMER_EMAIL_${browserEngine}`];

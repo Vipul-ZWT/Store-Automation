@@ -7,8 +7,8 @@ export async function runSubscriptionCheckoutTest(page: Page, testInfo: TestInfo
     let orderNumber = '';
     let failed = false;
 
-    await test.step('Place Order', async () => {
-        steps.push({ title: 'Place Order', status: 'started' });
+    await test.step('Place Order Successfully', async () => {
+        steps.push({ title: 'Place Order Successfully', status: 'started' });
         try {
             const checkoutPage = new CheckoutPage(page);
             await checkoutPage.placeOrder(isMobile);
@@ -19,8 +19,8 @@ export async function runSubscriptionCheckoutTest(page: Page, testInfo: TestInfo
         }
     });
 
-    await test.step('Order Success Page', async () => {
-        steps.push({ title: 'Order Success Page', status: 'started' });
+    await test.step('Verify Order Success Page Display', async () => {
+        steps.push({ title: 'Verify Order Success Page Display', status: 'started' });
         try {
             orderNumber = await page.locator('a.order-number').innerText();
             storeOrderNumber(orderNumber);
@@ -31,8 +31,8 @@ export async function runSubscriptionCheckoutTest(page: Page, testInfo: TestInfo
         }
     });
 
-    await test.step('Order Email Verification', async () => {
-        steps.push({ title: 'Order Email Verification', status: 'started' });
+    await test.step('Verify Order Confirmation Email Receipt', async () => {
+        steps.push({ title: 'Verify Order Confirmation Email Receipt', status: 'started' });
         try {
             const email = new Email();
             await email.checkEmail(`Your ZealousWeb order confirmation for #${orderNumber}`);

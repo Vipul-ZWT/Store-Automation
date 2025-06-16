@@ -11,7 +11,7 @@ test('Affiliate Customer Registration', async ({page}, testInfo) => {
     await register.createAccount()
 });
 
-test('Razorpay Testing', async ({ page },testInfo) => {
+test('Desktop: Razorpay Checkout Flow', async ({ page },testInfo) => {
     test.setTimeout(280000);
     let orderNumber: string;
     let steps: { title: string; status: string }[] = [];
@@ -28,8 +28,8 @@ test('Razorpay Testing', async ({ page },testInfo) => {
     await runRazorpayCheckoutTest(page, testInfo,false, (number) => orderNumber = number);
 });
 
-test.describe('Affiliate',async () => {
-    test('Affiliate Withdrawl',async ({page},testInfo) => {
+test.describe('Affiliate Flow',async () => {
+    test('Affiliate: Initiate Withdrawal Request',async ({page},testInfo) => {
         let steps: { title: string; status: string }[] = [];
         const loginPage = new LoginPage(page);
         await loginPage.completeLogin(process.env.AFFILIATE_EMAIL!, process.env.AFFILIATE_PASSWORD!);
@@ -37,8 +37,8 @@ test.describe('Affiliate',async () => {
         await page.goto(`${process.env.BASE_URL}/affiliate/account/withdraw/`);
         
         const affiliate = new AffiliatePage(page);
-        await test.step('Affiliate Withdrawal', async() => {
-            steps.push({ title: 'Affiliate Withdrawal', status: 'started' });
+        await test.step('Affiliate: Initiate Withdrawal Request', async() => {
+            steps.push({ title: 'Affiliate: Initiate Withdrawal Request', status: 'started' });
             try {
                 await affiliate.myWithdrawal();
                 steps[steps.length - 1].status = 'passed';
@@ -47,8 +47,8 @@ test.describe('Affiliate',async () => {
             }
         });
 
-        await test.step('Affiliate Cancel Withdrawal', async() => {
-            steps.push({ title: 'Affiliate Cancel Withdrawal', status: 'started' });
+        await test.step('Affiliate: Cancel Withdrawal Request', async() => {
+            steps.push({ title: 'Affiliate: Cancel Withdrawal Request', status: 'started' });
             try {
                 await affiliate.cancelWithdrawal();
                 steps[steps.length - 1].status = 'passed';
@@ -64,7 +64,7 @@ test.describe('Affiliate',async () => {
         });
     });
 
-    test('Check Affiliate Commission', async ({page}) => {
+    test('Affiliate: Verify Commission Details', async ({page}) => {
         const loginPage = new LoginPage(page);
         await loginPage.completeLogin(process.env.AFFILIATE_EMAIL!, process.env.AFFILIATE_PASSWORD!);
 

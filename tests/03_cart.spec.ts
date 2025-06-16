@@ -13,10 +13,10 @@ async function removeProduct(page: Page) {
 }
 
 test.describe.serial('Cart', () => {
-    test('Add product to Cart', async ({page}) => {
+    test('User: Add Product to Cart', async ({page}) => {
         await addtocart(page);
     })
-    test('Remove product from cart', async ({page}) => {
+    test('User: Remove Product From Cart', async ({page}) => {
         await removeProduct(page);
     });
 });
@@ -24,7 +24,7 @@ test.describe.serial('Cart', () => {
 test.describe.serial('Guest User', () => {
     test.use({storageState: {cookies: [], origins: []}});
 
-    test('Add and Remove product from Cart', async ({page}) => {
+    test('Guest: Add and Remove Product From Cart', async ({page}) => {
         await test.step('Add product to cart', async () => {
             await addtocart(page);
         });
@@ -33,7 +33,7 @@ test.describe.serial('Guest User', () => {
         });
     });
 
-    test('Product remain in cart after login', async ({page,browserName}) => {
+    test('Guest: Product Remains in Cart After Login', async ({page,browserName}) => {
         const browserEngine = browserName?.toUpperCase() || "UNKNOWN";
         await test.step('Add another product to cart', async () =>{
             const url = process.env[`SECOND_PRODUCT_URL_${browserEngine}`];
@@ -55,18 +55,18 @@ test.describe.serial('Guest User', () => {
 });
 
 test.describe.serial('Apply and Remove Coupon Code', () => {
-    test('Apply Coupon', async ({page}) => {
+    test('Apply Valid Coupon Code', async ({page}) => {
         const cartPage = new CartPage(page);
         await cartPage.addToCart(`${process.env.BASE_URL}/${process.env.COUPON_PRODUCT_URL}`, process.env.COUPON_PRODUCT_NAME!);
         await cartPage.applyCoupon(process.env.COUPON_CODE!);
     });
 
-    test('Remove Coupon', async ({page}) => {
+    test('Remove Applied Coupon Code', async ({page}) => {
         const cartPage = new CartPage(page);
         await cartPage.removeCoupon();
     });
 
-    test('Apply Incorrect Coupon', async ({page}) => {
+    test('Apply Invalid Coupon Code', async ({page}) => {
         const cartPage = new CartPage(page);
         await cartPage.applyCoupon(process.env.INCORRECT_COUPON_CODE!,false);
     });

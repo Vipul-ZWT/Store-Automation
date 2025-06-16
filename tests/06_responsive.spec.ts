@@ -47,8 +47,8 @@ async function ApplyFilter(page: Page){
 
 test.use({...devices['Pixel 5']});
 
-test.describe('Responsive Tests', () => {
-    test('Toggle Menu', async ({ page }) => {
+test.describe('Responsive Test Cases', () => {
+    test('Toggle Navigation Menu', async ({ page }) => {
         await page.goto(`${process.env.BASE_URL}`);
     
         const menuToggle = page.locator('.action.nav-toggle');
@@ -60,13 +60,13 @@ test.describe('Responsive Tests', () => {
         await expect(page.getByRole('heading', { name: 'Contact' })).toBeVisible();
     });
     
-    test('Check for ShopBy menu', async ({ page }) => {
+    test("Verify 'Shop By' Menu Visibility", async ({ page }) => {
       await page.goto(`${process.env.BASE_URL}/magento2-extensions`);
       await page.getByRole('tab', { name: 'Shop By' }).click();
       await expect(page.getByRole('tablist').filter({ hasText: 'Shop By' })).toBeVisible();
     });
     
-    test('Remove filter', async ({ page }, testInfo) => {
+    test('Applied & Remove Filters', async ({ page }, testInfo) => {
         let steps: { title: string; status: string }[] = [];
 
         await test.step('Apply filter', async () => {
@@ -100,13 +100,13 @@ test.describe('Responsive Tests', () => {
         
     });
     
-    test('Search toggle', async ({ page }) => {
+    test('Toggle Search Bar', async ({ page }) => {
         await page.goto(`${process.env.BASE_URL}/magento2-extensions`);
         await page.locator('label').filter({ hasText: 'Search' }).click();
         await expect(page.getByRole('combobox', { name: 'Search' })).toBeVisible();
     });
     
-    test('Check for Scroll bar on Seo packages', async ({ page }) => {
+    test('Verify Scrollbar Visibility on SEO Packages Section', async ({ page }) => {
         await page.goto(`${process.env.BASE_URL}/packages/local-seo-packages`);
         const scrollBar = page.locator('.feature-comparison-table');
         await expect(scrollBar).toBeVisible();
@@ -114,14 +114,14 @@ test.describe('Responsive Tests', () => {
         expect(scrollBarWidth).toBe(true);
     });
     
-    test('Desicription on product listing page', async ({ page }) => {
+    test('Verify Product Description on Listing Page', async ({ page }) => {
         await page.goto(`${process.env.BASE_URL}/magento2-extensions?product_list_mode=list`);
         const firstDescription = page.locator('.product-item-description').first();
         const isVisible = await firstDescription.isVisible();
         expect(isVisible).toBe(false);
     });
     
-    test('Image size and aspect ratio (PLP)', async ({ page },testInfo) => {
+    test('Validate Image Size and Aspect Ratio (PLP)', async ({ page },testInfo) => {
         let steps: { title: string; status: string }[] = [];
         let failed: boolean = false;
         await page.goto(`${process.env.BASE_URL}/magento2-extensions`);
@@ -178,7 +178,7 @@ test.describe('Responsive Tests', () => {
         }
     });
 
-    test('Image size and aspect ratio (PDP)', async ({ page },testInfo) => {
+    test('Validate Image Size and Aspect Ratio (PDP)', async ({ page },testInfo) => {
         let steps: { title: string; status: string }[] = [];
         let failed = false;
         await page.goto(`${process.env.BASE_URL}/${process.env.PRODUCT_URL}`);
@@ -233,18 +233,24 @@ test.describe('Responsive Tests', () => {
         }
     });
 
-    test('Add to cart', async ({ page }) => {
+    test('Verify My Account Navigation Toggle', async ({ page }) => {
+        await page.goto(`${process.env.BASE_URL}/customer/account/`);
+        await page.locator('.block-collapsible-nav-title').click();
+        await expect(page.locator("#block-collapsible-nav")).toBeVisible();
+    });
+
+    test('Add Product to Cart', async ({ page }) => {
         const cartPage = new CartPage(page);
         await cartPage.addToCart(`${process.env.BASE_URL}/${process.env.PRODUCT_URL}`, process.env.PRODUCT_NAME!);
     });
 
-    test('Subscription Product Checkout (Mobile)', async ({ page }, testInfo) => {
+    test('Stripe Product Checkout (Mobile)', async ({ page }, testInfo) => {
         let orderNumber = '';
         await runSubscriptionCheckoutTest(page,testInfo,true,(number) => orderNumber = number);
     });
 
-    test('Razorpay Product Checkout(Mobile)', async ({ page }, testInfo) => {
-        test.setTimeout(285000);
+    test('Razorpay Product Checkout (Mobile)', async ({ page }, testInfo) => {
+        test.setTimeout(30000);
         let orderNumber = '';
         const cartPage = new CartPage(page);
         await cartPage.addToCart(`${process.env.BASE_URL}/${process.env.PRODUCT_URL}`, process.env.PRODUCT_NAME!);

@@ -9,8 +9,8 @@ export async function runRazorpayCheckoutTest(page: Page, testInfo: TestInfo,isM
     const steps: { title: string; status: string }[] = [];
     let failed = false;
 
-    await test.step('Store Switch', async () => {
-        steps.push({ title: 'Store Switch', status: 'started' });
+    await test.step('Store Switchiching', async () => {
+        steps.push({ title: 'Store Switchiching', status: 'started' });
         try {
             const affiliate = new AffiliatePage(page);
             await affiliate.storeSwitch();
@@ -21,8 +21,8 @@ export async function runRazorpayCheckoutTest(page: Page, testInfo: TestInfo,isM
         }
     });
 
-    await test.step('Place Order (Razorpay)', async () => {
-        steps.push({ title: 'Place Order (Razorpay)', status: 'started' });
+    await test.step('Place Order Using Razorpay Payment Method', async () => {
+        steps.push({ title: 'Place Order Using Razorpay Payment Method', status: 'started' });
         try {
             const checkoutPage = new CheckoutPage(page);
             await checkoutPage.placeOrderRazorpay(isMobile);
@@ -33,8 +33,8 @@ export async function runRazorpayCheckoutTest(page: Page, testInfo: TestInfo,isM
         }
     });
 
-    await test.step('Order Success Page', async () => {
-        steps.push({ title: 'Order Success Page', status: 'started' });
+    await test.step('Verify Order Success Page Display', async () => {
+        steps.push({ title: 'Verify Order Success Page Display', status: 'started' });
         try {
             orderNumber = await page.locator('a.order-number').innerText();
             storeOrderNumber(orderNumber);
@@ -45,8 +45,8 @@ export async function runRazorpayCheckoutTest(page: Page, testInfo: TestInfo,isM
         }
     });
 
-    await test.step('Order Email Verification', async () => {
-        steps.push({ title: 'Order Email Verification', status: 'started' });
+    await test.step('Verify Order Confirmation Email Receipt', async () => {
+        steps.push({ title: 'Verify Order Confirmation Email Receipt', status: 'started' });
         try {
             const email = new Email();
             await email.checkEmail(`Your ZealousWeb order confirmation for #${orderNumber}`);

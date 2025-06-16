@@ -5,7 +5,7 @@ import Email from "./fixtures/email.check";
 
 test.use({ storageState: { cookies: [], origins: [] } });
 
-test('Login From Home Page', async ({page}) => {
+test('Customer Login from Home Page', async ({page}) => {
     await page.goto(`${process.env.BASE_URL}/`);
     await page.getByRole('button', { name: 'hidden' }).click();
     await page.getByRole('link', { name: 'Sign In' }).click();
@@ -29,7 +29,7 @@ test('Login From Home Page', async ({page}) => {
     expect(loginStatus).toBe("1")
 });
 
-test('Customer Incorrect Login Test',async ({page}) => {
+test('Customer Login with Incorrect Credentials',async ({page}) => {
     await page.goto(`${process.env.BASE_URL}/customer/account/login/`);
 
     page.setDefaultTimeout(30000);
@@ -43,9 +43,9 @@ test('Customer Incorrect Login Test',async ({page}) => {
     await expect(errorMessage).toBeVisible();
 })
 
-test('Forgot Password', async ({page}, testInfo) => {
+test('Forgot Password Flow', async ({page}, testInfo) => {
     let steps: { title: string; status: string }[] = [];
-    steps.push({ title: 'Email for password rest', status: 'started' });
+    steps.push({ title: 'Verify Forgot Password Reset Email', status: 'started' });
 
     page.setDefaultTimeout(30000);
 
@@ -59,7 +59,7 @@ test('Forgot Password', async ({page}, testInfo) => {
     await page.waitForLoadState('networkidle');
     await resetButton.click();
 
-    await test.step('Email for password rest', async () => {
+    await test.step('Verify Forgot Password Reset Email', async () => {
         try{
             const email = new Email();
             await email.checkEmail('Reset your ZealousWeb password');
@@ -79,9 +79,9 @@ test('Forgot Password', async ({page}, testInfo) => {
       });
 });
 
-test('Update Password',async ({page},testInfo) => {
+test('Update Password from Account',async ({page},testInfo) => {
     let steps: { title: string; status: string }[] = [];
-    steps.push({ title: 'Email for password rest', status: 'started' });
+    steps.push({ title: 'Verify Password Update Confirmation Email', status: 'started' });
 
     const loginPage = new LoginPage(page);
     await loginPage.completeLogin(process.env.OTHER_CUSTOMER_EMAIL!, process.env.OTHER_CUSTOMER_PASSWORD!);
@@ -91,7 +91,7 @@ test('Update Password',async ({page},testInfo) => {
     const accountPage = new AccountPage(page);
     await accountPage.updatePassword(process.env.OTHER_CUSTOMER_PASSWORD!, process.env.OTHER_CUSTOMER_NEW_PASSWORD!);
 
-    await test.step('Email for password update', async () => {
+    await test.step('Verify Password Update Confirmation Email', async () => {
         try{
             const email = new Email();
             await email.checkEmail('Your ZealousWeb password has been changed');
