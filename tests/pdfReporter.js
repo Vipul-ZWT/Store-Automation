@@ -25,7 +25,7 @@ class PDFReporter {
       if (videoAttachment && videoAttachment.path) {
         const absoluthePath = videoAttachment.path;
         const relativePath = absoluthePath.replace('/var/www/html/','');
-        videoUrl = `http://192.168.1.238/${relativePath}`;
+        videoUrl = `${process.env.SYSTEM_IP}/${relativePath}`;
       }
     }
 
